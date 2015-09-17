@@ -10,8 +10,11 @@ This is a napster style file sharing system built with scala and akka cluster
         from a selected peer(seeder)
 
 For testing purposes, the files named `peer1`,`peer2` and `peer3` have the list of filenames those respective peers will seed.
+
 Run the `make-files.sh` script to create some dummy files of 1K to 10K size. 
+
 Place them in a directory( default is `/tmp/shared`)
+
 Verify that the files in the shared directory match the filenames in the `peer1`,`peer2` and `peer3` files
 
 *****
@@ -21,6 +24,7 @@ Verify that the files in the shared directory match the filenames in the `peer1`
 
 NB:  
 Make sure that the socket used for the server is a match with what you provide in `run.sh`.
+
 For multiple vms use unique IP not loopback.
 
 *****
@@ -32,7 +36,8 @@ For multiple vms use unique IP not loopback.
     Start client 1 with ./run.sh 127.0.0.1 4000
     Start client 2 with ./run.sh 127.0.0.1 4001
 
-Follow the prompt in the client terminals to lookup and download.  
+Follow the prompt in the client terminals to lookup and download. 
+ 
 Enjoy!!
 
 #### v2.0
