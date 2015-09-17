@@ -23,6 +23,7 @@ Verify that the files in the shared directory match the filenames in the `peer1`
 * assignable client ports  >= `4000`
 * Make sure that the socket used for the server is a match with what you provide in `run.sh`.
 * For multiple vms use unique IP not loopback.
+
 *****
 
 #### Run the following commands from the directory with the jar in different terminals
