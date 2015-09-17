@@ -19,11 +19,11 @@ Verify that the files in the shared directory match the filenames in the `peer1`
 * assignable client ports  >= `4000`
 
 NB:
-   Make sure that the socket used for the server is a match with what you provide in `run.sh`.
-   For multiple vms use unique IP not loopback.
+- Make sure that the socket used for the server is a match with what you provide in `run.sh`.
+- For multiple vms use unique IP not loopback.
 *****
 
-## Run the following commands from the directory with the jar in different terminals
+#### Run the following commands from the directory with the jar in different terminals
     Start the server with ./run.sh 127.0.0.1 2551 (assuming the seednode setting in run.sh is 127.0.0.1:2551)
     Start peer 1 with ./run.sh 127.0.0.1 3001 1 /tmp/shared1
     Start peer 2 with ./run.sh 127.0.0.1 3002 2 /tmp/shared2
@@ -33,7 +33,7 @@ NB:
 Follow the prompt in the client terminals to lookup and download.  
 Enjoy!!
 
-## v2.0
+#### v2.0
 1. A backup will be created for the central point of failure ( the index server ) with data replication.
 2. A distributed hash table will be substituted for the concurrent map currently being used.  return
 3. Peers will register with more information so peer list will be sent to clients by priority
