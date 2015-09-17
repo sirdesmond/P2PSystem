@@ -18,16 +18,13 @@ Place them in a directory( default is `/tmp/shared`)
 Verify that the files in the shared directory match the filenames in the `peer1`,`peer2` and `peer3` files
 
 *****
+## NB
 * assignable server ports: b/n `2000` and `2999` ( This socket should match the socket provided as the seed node in the `run.sh` script)
 * assignable peer ports:   b/n `3000` and `3999` 
 * assignable client ports  >= `4000`
-
-NB:  
-Make sure that the socket used for the server is a match with what you provide in `run.sh`.
-
-For multiple vms use unique IP not loopback.
-
-*****
+* Make sure that the socket used for the server is a match with what you provide in `run.sh`.
+* For multiple vms use unique IP not loopback.
+-----
 
 #### Run the following commands from the directory with the jar in different terminals
     Start the server with ./run.sh 127.0.0.1 2551 (assuming the seednode setting in run.sh is 127.0.0.1:2551)
