@@ -44,7 +44,7 @@ class IdxServer extends Actor with ActorLogging {
        seeders = db(fileName)
 
     }catch{
-      case no: NoSuchElementException => log.info(s"$no")
+      case _: NoSuchElementException =>
     }finally {
       println(s"adding new seeder for file $fileName")
       seeders+=sndr
@@ -71,26 +71,11 @@ class IdxServer extends Actor with ActorLogging {
     case Register(fileName) =>
       def aware_of_file = db contains fileName
       def no_change = sender ! ServerError(s"You are already seeding this file")
-      def success = sender ! SuccessfullyAdded(fileName)
+      def success = sender !  SuccessfullyAdded(fileName)
 
-      //if I'm not aware of file add sender as seeder and
-      if(! aware_of_file){
-        addSeeder(fileName,sender)
-        success
-      }
-      else{
-        //I'm aware of file, if seeder is part of my list ignore else add seeder for file
+      addSeeder(fileName,sender)
+      success
 
-        val seeders = db(fileName)
-
-        for(s<- seeders){
-          if (s.path.name equals sender.path.name) no_change
-          else{
-            addSeeder(fileName,sender)
-            success
-          }
-        }
-      }
 
     case Lookup(fileName) =>
       //if I'm aware of file send list of path and ref pairs to sender

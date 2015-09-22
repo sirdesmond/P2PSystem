@@ -1,4 +1,0 @@
-TODO:
- -- performance and evaluation on multi vms/jvms
- -- design document
-

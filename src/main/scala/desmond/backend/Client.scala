@@ -1,13 +1,16 @@
 package desmond.backend
 
 import java.io._
+import java.util.concurrent.TimeUnit
 
 import akka.actor._
 import akka.cluster.{Member, MemberStatus, Cluster}
 import akka.cluster.ClusterEvent.{CurrentClusterState, MemberUp}
 import akka.event.LoggingReceive
+import akka.pattern.Patterns
 import akka.util.Timeout
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 import scala.collection.mutable
@@ -29,7 +32,7 @@ class Client(sharedDir:String) extends Actor with ActorLogging{
   val peers = mutable.Map.empty[String,ActorRef]
   var listeners = Set.empty[ActorRef]
   var name = ""
-
+  var total_response_time= 0.0
   val cluster = Cluster(context.system)
 
 
@@ -56,6 +59,20 @@ class Client(sharedDir:String) extends Actor with ActorLogging{
   }
 
   /**
+   * Gets the list of files in a directory
+   * @param dir
+   * @return
+   */
+  def getListOfFiles(dir:String):List[File]={
+    val d = new File(dir)
+    if(d.exists() && d.isDirectory){
+      d.listFiles.filter(_.isFile).toList
+    }else{
+      List[File]()
+    }
+  }
+
+  /**
    * handle expected messages
    * @return
    */
@@ -65,10 +82,41 @@ class Client(sharedDir:String) extends Actor with ActorLogging{
 
     case MemberUp(m) => register(m)
 
-    case Register(fileName) =>
+    case Register(path) =>
       listeners += sender
-      log.info(s"informing server...$sender")
-      servers foreach(_ ! Register(fileName))
+
+      log.info(s"${self.path.name} registering files in $path")
+
+      getListOfFiles(sharedDir).foreach(m => {
+        servers.head !  Register(m.getName())
+      })
+      //benchmark purpose
+      /*implicit val resolveTimeout = Timeout(30 seconds)
+
+      log.info(s"${self.path.name} registering files in $path")
+      var i = 0
+
+       getListOfFiles(sharedDir).foreach(m =>{
+         i+=1
+         val startTime = System nanoTime()
+         val f = Patterns.ask(servers.head,Register(m.getName()),resolveTimeout)
+         Await.result(f,resolveTimeout.duration)
+
+         val estimatedTime = (System.nanoTime() - startTime)
+
+         total_response_time += TimeUnit.MILLISECONDS.convert(estimatedTime,TimeUnit.NANOSECONDS)
+
+         f onSuccess{
+           case m @ SuccessfullyAdded(filename) =>
+             if(i == 1000) {
+               log.info(s"total response time "+total_response_time)
+               log.info(s"average registration time was ${total_response_time/i} milliseconds")
+               listeners.foreach(_ ! m)
+             }
+         }
+       })*/
+
+
 
     case ServerError(errMsg) =>
       log.error(s"ERROR from server ${sender()}: $errMsg")
@@ -79,7 +127,7 @@ class Client(sharedDir:String) extends Actor with ActorLogging{
       servers foreach(_ ! Lookup(name))
 
     case DownloadFile(sender,filename,dir) =>
-      log.debug("Initiating download...")
+      log.info("Initiating download...")
       new File(sharedDir).mkdirs
       val filePath = new File(sharedDir+"/",filename)
 
@@ -95,14 +143,12 @@ class Client(sharedDir:String) extends Actor with ActorLogging{
       val  f = new File(path)
       val out: BufferedOutputStream = new BufferedOutputStream((new FileOutputStream(f)))
       out.write(data,0,data.length)
-      println("file download complete!!")
+      log.info("file download complete!!")
       out close
 
-    case m @ SuccessfullyAdded(filename) =>
-      listeners.foreach(_ ! m)
+    case m @ SuccessfullyAdded(filename) => listeners.foreach(_ ! m)
 
-    case e =>
-        log.debug(s"$e")
+    case e => log.debug(s"$e")
   }
 
 }

@@ -12,6 +12,7 @@ import scala.collection.mutable
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.io.Source
 
 /**
  * Created by kofikyei on 9/4/15.
@@ -70,13 +71,9 @@ object Main extends App{
         withFallback(ConfigFactory.load())
 
     val system = ActorSystem("P2PSystem",config)
-
-
     val f = (s"peer${args(2)}")
 
     val source_dir = if(args(3).isEmpty) "/tmp/shared" else args(3)
-
-
 
     val peer = system.actorOf(Client.props(source_dir), s"peer${args(2)}")
 
@@ -84,7 +81,7 @@ object Main extends App{
 
     //requests simulator
 
-    system.actorOf(Props(classOf[TaskProducer], peer,f), "producer")
+    system.actorOf(Props(classOf[TaskProducer], peer,source_dir), s"producer${UUID.randomUUID().toString}")
 
   }
 
@@ -124,6 +121,8 @@ object Main extends App{
         case 1 =>
           print("Enter file name: ")
           val fileName = reader.readLine()
+          //val start = fileName.split("-")(0)
+          //val end = fileName.split("-")(1)
           var peers = mutable.Set.empty[ActorRef]
 
           val seed = config.getStringList("akka.cluster.seed-nodes").get(0)
@@ -133,23 +132,25 @@ object Main extends App{
 
           var avg_response_time = 0.0
 
+          f = Patterns.ask(clusterClient,new ClusterClient.Send("/user/server",
+            Lookup(fileName), true),resolveTimeout).mapTo[KnownSeeders]
+         // for{
+           // i <-start.toInt to end.toInt
+          //}yield {1
+           // val startTime = System nanoTime()
+            //f = Patterns.ask(clusterClient,new ClusterClient.Send("/user/server",Lookup(fileName), true),resolveTimeout).mapTo[KnownSeeders]
+            //benchmark purpose
+            //Await.result(f,10 minutes)
 
-          for{
-            i <-1 to 10
-          }yield {
-            val startTime = System nanoTime()
-            f = Patterns.ask(clusterClient,new ClusterClient.Send("/user/server",Lookup(fileName), true),resolveTimeout).mapTo[KnownSeeders]
-            Await.result(f,10 minutes)
+            //val estimatedTime = (System.nanoTime() - startTime)
 
-            val estimatedTime = (System.nanoTime() - startTime)
+            //avg_response_time += TimeUnit.MILLISECONDS.convert(estimatedTime,TimeUnit.NANOSECONDS)
+          //}
 
-            avg_response_time += TimeUnit.MILLISECONDS.convert(estimatedTime,TimeUnit.NANOSECONDS)
-          }
+          //avg_response_time = avg_response_time /1000
 
-          avg_response_time = avg_response_time /10
-
-          println()
-          println(s"The average response time of lookup was $avg_response_time milliseconds")
+          //println()
+          //println(s"The average response time of lookup was $avg_response_time milliseconds")
           println()
           var s=""
           var count = 0

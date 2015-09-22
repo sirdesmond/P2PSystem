@@ -9,11 +9,9 @@ This is a napster style file sharing system built with scala and akka cluster
 * `Client` A leecher that wants to lookup a particular file from the index server  and download it
         from a selected peer(seeder)
 
-For testing purposes, the files named `peer1`,`peer2` and `peer3` have the list of filenames those respective peers will seed.
 
 1. Run the `make-files.sh` script to create some dummy files of sizes between `1K and 10K`
 2. Place them in a directory( default is `/tmp/shared`)
-3. Verify that the files in the shared directory match the filenames in the `peer1`,`peer2` and `peer3` files
 
 *****
 * assignable server ports: b/n `2000` and `2999` ( This socket should match the socket provided as the seed node in the `run.sh` script)
@@ -25,7 +23,7 @@ For testing purposes, the files named `peer1`,`peer2` and `peer3` have the list 
 *****
 
 #### Run the following commands from the directory with the jar in different terminals
-    Start the server with ./run.sh 127.0.0.1 2551 (assuming the seednode setting in run.sh is 127.0.0.1:2551)
+    Start the server with ./run.sh 127.0.0.1 2551 (assuming the seednode setting in `run.sh` is 127.0.0.1:2551)
     Start peer 1 with ./run.sh 127.0.0.1 3001 1 /tmp/shared1
     Start peer 2 with ./run.sh 127.0.0.1 3002 2 /tmp/shared2
     Start client 1 with ./run.sh 127.0.0.1 4000
